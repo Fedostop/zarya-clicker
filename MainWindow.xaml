@@ -1,0 +1,17 @@
+<Window x:Class="ZaryaClick.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ZARYA CLICK" Height="300" Width="400"
+        Background="#0a0a0c" Foreground="#e8e8e8"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="20">
+        <StackPanel>
+            <TextBlock Text="⚡ ZARYA CLICK" FontSize="24" FontWeight="Bold" Foreground="#ff6b1a" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+            
+            <Button x:Name="BtnCrosshair" Content="Скрыть прицел" Click="BtnCrosshair_Click" Height="40" Margin="0,10" Background="#121216" Foreground="#ff6b1a" FontWeight="Bold"/>
+            
+            <TextBlock Text="F6 — Вкл/Выкл автокликер" HorizontalAlignment="Center" Margin="0,20,0,0" Foreground="#777777"/>
+            <TextBlock Text="Кликер работает по удержанию ЛКМ" HorizontalAlignment="Center" Margin="0,5,0,0" Foreground="#777777"/>
+        </StackPanel>
+    </Grid>
+</Window>
