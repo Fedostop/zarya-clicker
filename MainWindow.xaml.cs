@@ -21,16 +21,20 @@ namespace ZaryaClick
         private CrosshairOverlay _overlay;
         private int _cps = 12;
         private int _jitter = 5;
+        
+        // Флаг для отслеживания зажатия клавиш (антидребезг)
+        private bool _f6Pressed = false;
+        private bool _f7Pressed = false;
 
         public MainWindow()
         {
             InitializeComponent();
             
-            // Запускаем прицел
+            // Запускаем прицел (теперь это безопасно, т.к. мы в главном потоке)
             _overlay = new CrosshairOverlay();
             _overlay.Show();
 
-            // Запускаем кликер в фоне
+            // Запускаем сам кликер в фоне (клики можно делать из фонового потока, это нормально)
             new Thread(ClickLoop) { IsBackground = true }.Start();
             
             // Запускаем проверку хоткеев
@@ -43,20 +47,28 @@ namespace ZaryaClick
             timer.Interval = TimeSpan.FromMilliseconds(50);
             timer.Tick += (s, e) =>
             {
-                // F6 — вкл/выкл кликер
+                // F6 (код 0x75)
                 if ((GetAsyncKeyState(0x75) & 0x8000) != 0)
                 {
-                    _enabled = !_enabled;
-                    Thread.Sleep(200);
+                    if (!_f6Pressed) 
+                    {
+                        _enabled = !_enabled;
+                        _f6Pressed = true;
+                    }
                 }
-                
-                // F7 — вкл/выкл прицел
+                else { _f6Pressed = false; }
+
+                // F7 (код 0x76)
                 if ((GetAsyncKeyState(0x76) & 0x8000) != 0)
                 {
-                    _crosshairVisible = !_crosshairVisible;
-                    _overlay.Visibility = _crosshairVisible ? Visibility.Visible : Visibility.Hidden;
-                    Thread.Sleep(200);
+                    if (!_f7Pressed)
+                    {
+                        _crosshairVisible = !_crosshairVisible;
+                        _overlay.Visibility = _crosshairVisible ? Visibility.Visible : Visibility.Hidden;
+                        _f7Pressed = true;
+                    }
                 }
+                else { _f7Pressed = false; }
             };
             timer.Start();
         }
@@ -66,7 +78,7 @@ namespace ZaryaClick
             Random rnd = new Random();
             while (true)
             {
-                // Если включено и зажата ЛКМ
+                // Если включено (F6) и зажата ЛКМ (0x01)
                 if (_enabled && (GetAsyncKeyState(0x01) & 0x8000) != 0)
                 {
                     mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
@@ -96,7 +108,11 @@ namespace ZaryaClick
 
         protected override void OnClosed(EventArgs e)
         {
-            _overlay?.Close();
+            // Корректно закрываем прицел, чтобы программа завершилась
+            if (_overlay != null)
+            {
+                _overlay.Close();
+            }
             base.OnClosed(e);
             Application.Current.Shutdown();
         }
