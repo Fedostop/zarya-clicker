@@ -1,0 +1,28 @@
+name: Build C# WPF EXE
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Скачиваем код
+      uses: actions/checkout@v4
+
+    - name: Устанавливаем .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Собираем EXE (один файл)
+      run: dotnet publish ZaryaClick.csproj -c Release -r win-x64 --self-contained true
+
+    - name: Отдаем готовый файл
+      uses: actions/upload-artifact@v4
+      with:
+        name: ZaryaClick-Hudsight
+        path: bin/Release/net8.0-windows/win-x64/publish/ZaryaClick.exe
